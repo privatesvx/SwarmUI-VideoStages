@@ -34,7 +34,6 @@ public class ControlNetCoreMediaCaptureTests
         WorkflowGenerator generator,
         params (int Index, string NodeId)[] sources)
     {
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         T2IModelHandler handler = new() { ModelType = "ControlNet" };
         using WorkflowBridge bridge = WorkflowBridge.Create(generator.Workflow);
         foreach ((int index, string nodeId) in sources)
@@ -127,7 +126,6 @@ public class ControlNetCoreMediaCaptureTests
     public void Capture_omits_audio_when_no_GetVideoComponents_upstream_of_controlnet()
     {
         using SwarmUiTestContext _ = new();
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         TestModelBundle models = TestModelFactory.CreateBaseAndLtxv2VideoModels();
         T2IModelHandler controlNetHandler = new() { ModelType = "ControlNet" };
         T2IModel controlNetModel = new(controlNetHandler, TestStubModel.Folder(controlNetHandler), TestStubModel.File(controlNetHandler, "UnitTest_ControlNet.safetensors"), "UnitTest_ControlNet.safetensors")
@@ -230,7 +228,6 @@ public class ControlNetCoreMediaCaptureTests
     public void ControlNet_capture_skips_image_only_apply_and_recognizes_later_anima_video_apply()
     {
         using SwarmUiTestContext _ = new();
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         T2IModelHandler handler = new() { ModelType = "ControlNet" };
         T2IModel model = TestStubModel.Create(handler, "UnitTest_Anima_ControlNet.safetensors");
         T2IParamInput input = new(null);

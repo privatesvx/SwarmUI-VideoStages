@@ -5,12 +5,6 @@ using Xunit;
 
 namespace VideoStages.Tests;
 
-/// <summary>
-/// SwarmUI's statics — <c>Program.T2IModelSets</c>, <c>WorkflowGenerator.Steps</c>/
-/// <c>ModelGenSteps</c>, the <c>T2IParamTypes</c> registry, <c>FeaturesSupported</c> — are shared,
-/// and the collection also owns <c>GlobalStateFixture</c>'s save/restore. xUnit parallelises across
-/// collections, so any class outside it races every class inside.
-/// </summary>
 [Collection("VideoStagesTests")]
 public class TestIsolationContractTests
 {
@@ -31,18 +25,9 @@ public class TestIsolationContractTests
                 + string.Join("\n  ", offenders));
     }
 
-    /// <summary>
-    /// <see cref="UnitTestStubs.EnsureComfyWorkflowParamsRegistered"/> hand-mirrors core's own
-    /// registrations, so a parameter core adds stays null here. Core reads those statics through
-    /// <c>T2IParamInput.TryGet</c>, which dereferences <c>param.Type</c> before any lookup, so the
-    /// miss surfaces as a NullReferenceException inside core from every workflow test at once
-    /// rather than as a missing registration.
-    /// </summary>
     [Fact]
     public void Every_core_comfy_parameter_has_a_test_registration()
     {
-        UnitTestStubs.EnsureComfyWorkflowParamsRegistered();
-
         string[] unregistered = [.. typeof(ComfyUIBackendExtension)
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .SelectMany(UnregisteredNames)
@@ -50,9 +35,7 @@ public class TestIsolationContractTests
 
         Assert.True(
             unregistered.Length == 0,
-            "Core registers these ComfyUI parameters that the test harness does not, so any core "
-                + "step reading one throws inside SwarmUI. Add an Ensure(...) line for each to "
-                + "UnitTestStubs.EnsureComfyWorkflowParamsRegistered:\n  "
+            "The shared test fixture left these ComfyUI parameters unregistered:\n  "
                 + string.Join("\n  ", unregistered));
     }
 

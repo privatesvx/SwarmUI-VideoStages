@@ -1,14 +1,13 @@
 using ComfyTyped.Core;
 using ComfyTyped.SwarmUI;
 using Newtonsoft.Json.Linq;
+using SwarmUI.Backends;
 using SwarmUI.Builtin_ComfyUIBackend;
+using SwarmUI.Core;
 using SwarmUI.Text2Image;
 
 namespace VideoStages.Tests;
 
-/// <summary>
-/// Minimal harness to run only the VideoStages workflow steps in tests.
-/// </summary>
 internal static class WorkflowTestHarness
 {
     private static readonly object LockObj = new();
@@ -25,15 +24,33 @@ internal static class WorkflowTestHarness
                 return;
             }
 
-            List<WorkflowGenerator.WorkflowGenStep> before = [.. WorkflowGenerator.Steps];
             if (T2IParamTypes.Width is null)
             {
                 T2IParamTypes.RegisterDefaults();
             }
 
-            UnitTestStubs.EnsureComfySamplerSchedulerRegistered();
-            UnitTestStubs.EnsureComfyVideoParamsRegistered();
+            BackendHandler priorBackends = Program.Backends;
+            try
+            {
+                // Core registers backend types alongside its parameters.
+                Program.Backends = new();
+                new ComfyUIBackendExtension().OnInit();
+            }
+            finally
+            {
+                Program.Backends = priorBackends;
+            }
 
+            ComfyUIBackendExtension.ControlNetPreprocessors["UnitTestPreprocessor"] = new JObject
+            {
+                ["input"] = new JObject
+                {
+                    ["required"] = new JObject(),
+                    ["optional"] = new JObject(),
+                },
+            };
+
+            List<WorkflowGenerator.WorkflowGenStep> before = [.. WorkflowGenerator.Steps];
             VideoStagesExtension extension = new();
             extension.OnPreInit();
             extension.OnInit();

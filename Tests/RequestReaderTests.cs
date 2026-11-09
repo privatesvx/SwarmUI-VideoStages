@@ -66,7 +66,6 @@ public class RequestReaderTests
 
     private static T2IParamInput BuildInputWithJson(string json)
     {
-        UnitTestStubs.EnsureComfySamplerSchedulerRegistered();
         T2IParamInput input = new(null);
         Fixtures.SetVideoStagesConfig(input, json);
         return input;

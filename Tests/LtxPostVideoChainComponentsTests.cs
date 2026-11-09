@@ -369,7 +369,6 @@ public class LtxPostVideoChainComponentsTests
 
     private static WorkflowGenerator CreateGenerator(JObject workflow)
     {
-        UnitTestStubs.EnsureComfySamplerSchedulerRegistered();
         return new WorkflowGenerator
         {
             UserInput = new T2IParamInput(null),

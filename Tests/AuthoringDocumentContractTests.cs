@@ -80,7 +80,6 @@ public class AuthoringDocumentContractTests
 
     private static TimelineSpec ParseFixture(out KeyLog log)
     {
-        UnitTestStubs.EnsureComfySamplerSchedulerRegistered();
         T2IParamInput input = new(null);
         Fixtures.SetVideoStagesConfig(input, FixtureJson());
         KeyLog keyLog = new();

@@ -14,7 +14,6 @@ public class LtxAudioReuseStateTests
 {
     private static WorkflowGenerator BuildGenerator()
     {
-        UnitTestStubs.EnsureComfySamplerSchedulerRegistered();
         T2IParamInput input = new(null);
         return new()
         {

@@ -50,7 +50,6 @@ internal sealed class MiniMaxWorkflowFixture : VideoStagesWorkflowFixture
     [
         new(g =>
         {
-            UnitTestStubs.EnsureComfyControlNetParamsRegistered();
             T2IModelHandler handler = new() { ModelType = "ControlNet" };
             using WorkflowBridge bridge = BridgeSync.For(g);
             for (int index = firstIndex; index < firstIndex + count; index++)

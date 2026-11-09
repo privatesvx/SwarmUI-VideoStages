@@ -38,213 +38,6 @@ internal static class UnitTestStubs
             UserInput = new T2IParamInput(null),
             Workflow = workflow
         };
-
-    public static void EnsureComfySamplerSchedulerRegistered()
-    {
-        if (ComfyUIBackendExtension.SamplerParam is not null
-            && ComfyUIBackendExtension.SchedulerParam is not null)
-        {
-            return;
-        }
-
-        ComfyUIBackendExtension.SamplerParam ??= T2IParamTypes.Register<string>(new T2IParamType(
-            Name: "Sampler",
-            Description: "Stub sampler used by VideoStages unit tests.",
-            Default: "euler",
-            FeatureFlag: "comfyui",
-            Group: T2IParamTypes.GroupSampling,
-            Toggleable: true,
-            GetValues: (_) => ["euler", "dpmpp_2m"]
-        ));
-
-        ComfyUIBackendExtension.SchedulerParam ??= T2IParamTypes.Register<string>(new T2IParamType(
-            Name: "Scheduler",
-            Description: "Stub scheduler used by VideoStages unit tests.",
-            Default: "normal",
-            FeatureFlag: "comfyui",
-            Group: T2IParamTypes.GroupSampling,
-            Toggleable: true,
-            GetValues: (_) => ["normal", "karras"]
-        ));
-    }
-
-    public static void EnsureComfyVideoParamsRegistered()
-    {
-        if (ComfyUIBackendExtension.VideoPreviewType is null)
-        {
-            ComfyUIBackendExtension.VideoPreviewType = T2IParamTypes.Register<string>(new T2IParamType(
-                Name: "Video Preview Type",
-                Description: "Stub video preview type used by VideoStages unit tests.",
-                Default: "animate",
-                FeatureFlag: "comfyui",
-                Group: T2IParamTypes.GroupVideo,
-                Toggleable: true,
-                GetValues: (_) => ["animate"]
-            ));
-        }
-
-        if (ComfyUIBackendExtension.VideoFrameInterpolationMethod is null)
-        {
-            ComfyUIBackendExtension.VideoFrameInterpolationMethod = T2IParamTypes.Register<string>(new T2IParamType(
-                Name: "Video Frame Interpolation Method",
-                Description: "Stub frame interpolation method used by VideoStages unit tests.",
-                Default: "RIFE",
-                FeatureFlag: "comfyui",
-                Group: T2IParamTypes.GroupAdvancedVideo,
-                Toggleable: true,
-                GetValues: (_) => ["RIFE", "FILM", "GIMM-VFI"]
-            ));
-        }
-
-        if (ComfyUIBackendExtension.VideoFrameInterpolationMultiplier is null)
-        {
-            ComfyUIBackendExtension.VideoFrameInterpolationMultiplier = T2IParamTypes.Register<int>(new T2IParamType(
-                Name: "Video Frame Interpolation Multiplier",
-                Description: "Stub frame interpolation multiplier used by VideoStages unit tests.",
-                Default: "1",
-                IgnoreIf: "1",
-                FeatureFlag: "comfyui",
-                Group: T2IParamTypes.GroupAdvancedVideo,
-                Toggleable: true,
-                Min: 1,
-                Max: 10,
-                Step: 1
-            ));
-        }
-
-        if (ComfyUIBackendExtension.RefinerUpscaleMethod is null)
-        {
-            ComfyUIBackendExtension.RefinerUpscaleMethod = T2IParamTypes.Register<string>(new T2IParamType(
-                Name: "Refiner Upscale Method",
-                Description: "Stub upscale method used by VideoStages unit tests.",
-                Default: "pixel-lanczos",
-                FeatureFlag: "comfyui",
-                Group: T2IParamTypes.GroupRefiners,
-                Toggleable: true,
-                GetValues: (_) => ["pixel-lanczos", "model-unit-test-upscaler"]
-            ));
-        }
-
-    }
-
-    public static void EnsureComfyWorkflowParamsRegistered()
-    {
-        EnsureComfySamplerSchedulerRegistered();
-        EnsureComfyVideoParamsRegistered();
-        // Core dereferences the preprocessor parameters when a ControlNet model is set.
-        EnsureComfyControlNetParamsRegistered();
-
-        // Names must match ComfyUIBackendExtension's production registrations exactly:
-        // T2IParamType.ID is CleanTypeName(Name), and that ID is the key a POST body uses.
-        Ensure(ref ComfyUIBackendExtension.CustomWorkflowParam, "ComfyUI Custom Workflow", "");
-        Ensure(ref ComfyUIBackendExtension.SetClipDevice, "Set CLIP Device", "cpu");
-        Ensure(ref ComfyUIBackendExtension.ModelAttentionBackend, "Model Attention Backend", "pytorch attention");
-        Ensure(ref ComfyUIBackendExtension.UseSparseAttention, "Use Sparse Attention", "None");
-        Ensure(ref ComfyUIBackendExtension.SelfAttentionGuidanceScale, "Self-Attention Guidance Scale", "0.5");
-        Ensure(ref ComfyUIBackendExtension.SelfAttentionGuidanceSigmaBlur, "Self-Attention Guidance Sigma Blur", "2");
-        Ensure(ref ComfyUIBackendExtension.PerturbedAttentionGuidanceScale, "Perturbed-Attention Guidance Scale", "3");
-        Ensure(ref ComfyUIBackendExtension.RescaleCFGMultiplier, "Rescale CFG Multiplier", "0.7");
-        Ensure(ref ComfyUIBackendExtension.RenormCFG, "Renorm CFG", "0");
-        Ensure(ref ComfyUIBackendExtension.UseCfgZeroStar, "Use CFG Zero Star", "false");
-        Ensure(ref ComfyUIBackendExtension.UseTCFG, "Use TCFG", "false");
-        Ensure(ref ComfyUIBackendExtension.NormalizedAttentionGuidanceScale, "Normalized Attention Guidance Scale", "0");
-        Ensure(ref ComfyUIBackendExtension.NormalizedAttentionGuidanceAlpha, "Normalized Attention Guidance Alpha", "0.5");
-        Ensure(ref ComfyUIBackendExtension.NormalizedAttentionGuidanceTau, "Normalized Attention Guidance Tau", "1.5");
-        Ensure(ref ComfyUIBackendExtension.TeaCacheMode, "TeaCache Mode", "disabled");
-        Ensure(ref ComfyUIBackendExtension.TeaCacheThreshold, "TeaCache Threshold", "0.25");
-        Ensure(ref ComfyUIBackendExtension.TeaCacheStart, "TeaCache Start", "0");
-        Ensure(ref ComfyUIBackendExtension.EasyCacheMode, "EasyCache Mode", "disabled");
-        Ensure(ref ComfyUIBackendExtension.EasyCacheThreshold, "EasyCache Threshold", "0.2");
-        Ensure(ref ComfyUIBackendExtension.EasyCacheStart, "EasyCache Start", "0.15");
-        Ensure(ref ComfyUIBackendExtension.EasyCacheEnd, "EasyCache End", "0.95");
-        Ensure(ref ComfyUIBackendExtension.AITemplateParam, "Enable AITemplate", "false");
-        Ensure(ref ComfyUIBackendExtension.ShiftedLatentAverageInit, "Shifted Latent Average Init", "false");
-        Ensure(ref ComfyUIBackendExtension.NunchakuCacheThreshold, "Nunchaku Cache Threshold", "0");
-        Ensure(ref ComfyUIBackendExtension.PreferredDType, "Preferred DType", "automatic");
-        Ensure(ref ComfyUIBackendExtension.Sam2PointCoordsPositive, "SAM2 Positive Points", "[]");
-        Ensure(ref ComfyUIBackendExtension.Sam2PointCoordsNegative, "SAM2 Negative Points", "[]");
-        Ensure(ref ComfyUIBackendExtension.Sam2BBox, "SAM2 BBox", "");
-        Ensure(ref ComfyUIBackendExtension.PixelDecoderModel, "Pixel Decoder Model", "");
-        Ensure(ref ComfyUIBackendExtension.SeedVRModel, "SeedVR Model", "None");
-        Ensure(ref ComfyUIBackendExtension.SeedVRUpscale, "SeedVR Upscale", "1");
-        Ensure(ref ComfyUIBackendExtension.SeedVRPreDownscale, "SeedVR Pre-Downscale", "1");
-        Ensure(ref ComfyUIBackendExtension.SeedVRUpscaleMethod, "SeedVR Upscale Method", "pixel-lanczos");
-        Ensure(ref ComfyUIBackendExtension.SeedVRColorCorrectionBehavior, "SeedVR Color Correction Behavior", "lab");
-        Ensure(ref ComfyUIBackendExtension.SeedVRSplitLatent, "SeedVR Split Latent", "false");
-        Ensure(ref ComfyUIBackendExtension.SeedVRTemporalVideoOverlap, "SeedVR Temporal Video Overlap", "0");
-        // Core reads these through TryGet without a null guard.
-        Ensure(ref ComfyUIBackendExtension.RefinerHyperTile, "Refiner HyperTile", "256");
-        Ensure(ref ComfyUIBackendExtension.RefinerSamplerParam, "Refiner Sampler", "euler");
-        Ensure(ref ComfyUIBackendExtension.RefinerSchedulerParam, "Refiner Scheduler", "normal");
-        Ensure(ref ComfyUIBackendExtension.DebugRegionalPrompting, "Debug Regional Prompting", "false");
-        Ensure(ref ComfyUIBackendExtension.GligenModel, "GLIGEN Model", "None");
-        Ensure(ref ComfyUIBackendExtension.IPAdapterStart, "IP-Adapter Start", "0");
-        Ensure(ref ComfyUIBackendExtension.IPAdapterEnd, "IP-Adapter End", "1");
-        Ensure(ref ComfyUIBackendExtension.IPAdapterWeight, "IP-Adapter Weight", "1");
-        Ensure(ref ComfyUIBackendExtension.IPAdapterWeightType, "IP-Adapter Weight Type", "standard");
-        Ensure(ref ComfyUIBackendExtension.UseIPAdapterForRevision, "Use IP-Adapter", "None");
-        Ensure(ref ComfyUIBackendExtension.EnableReferenceLatents, "Enable Reference Latents", "none");
-        Ensure(ref ComfyUIBackendExtension.TextEncodedImage, "Text Encoded Image", "auto");
-        Ensure(ref ComfyUIBackendExtension.UseStyleModel, "Use Style Model", "None");
-        Ensure(ref ComfyUIBackendExtension.StyleModelApplyStart, "Style Model Apply Start", "0");
-        Ensure(ref ComfyUIBackendExtension.StyleModelMergeStrength, "Style Model Merge Strength", "1");
-        Ensure(ref ComfyUIBackendExtension.StyleModelMultiplyStrength, "Style Model Multiply Strength", "1");
-        Ensure(ref ComfyUIBackendExtension.YoloModelInternal, "YOLO Model Internal", "");
-    }
-
-    private static void Ensure<T>(
-        ref T2IRegisteredParam<T> parameter,
-        string name,
-        string defaultValue)
-    {
-        parameter ??= T2IParamTypes.Register<T>(new T2IParamType(
-            Name: name,
-            Description: "Parameter stub used by full SwarmUI workflow contract tests.",
-            Default: defaultValue,
-            Min: -100,
-            Max: 100));
-    }
-
-    public static void EnsureComfyControlNetParamsRegistered()
-    {
-        if (ComfyUIBackendExtension.ControlNetPreprocessorParams[0] is not null
-            && ComfyUIBackendExtension.ControlNetUnionTypeParams[0] is not null)
-        {
-            return;
-        }
-
-        ComfyUIBackendExtension.ControlNetPreprocessors["UnitTestPreprocessor"] = new JObject()
-        {
-            ["input"] = new JObject()
-            {
-                ["required"] = new JObject(),
-                ["optional"] = new JObject()
-            }
-        };
-
-        for (int i = 0; i < 3; i++)
-        {
-            string suffix = T2IParamTypes.Controlnets[i].NameSuffix;
-            ComfyUIBackendExtension.ControlNetPreprocessorParams[i] ??= T2IParamTypes.Register<string>(new T2IParamType(
-                Name: $"ControlNet{suffix} Preprocessor",
-                Description: "Stub ControlNet preprocessor used by VideoStages unit tests.",
-                Default: "None",
-                FeatureFlag: "controlnet",
-                Group: T2IParamTypes.Controlnets[i].Group,
-                Toggleable: true,
-                GetValues: (_) => ["None", "UnitTestPreprocessor"]
-            ));
-            ComfyUIBackendExtension.ControlNetUnionTypeParams[i] ??= T2IParamTypes.Register<string>(new T2IParamType(
-                Name: $"ControlNet{suffix} Union Type",
-                Description: "Stub ControlNet union type used by VideoStages unit tests.",
-                Default: "auto",
-                FeatureFlag: "controlnet",
-                Group: T2IParamTypes.Controlnets[i].Group,
-                Toggleable: true,
-                GetValues: (_) => ["auto", "openpose"]
-            ));
-        }
-    }
 }
 
 internal sealed class SwarmUiTestContext : IDisposable
@@ -261,8 +54,7 @@ internal sealed class SwarmUiTestContext : IDisposable
         bool resetExtraModelProviders = true,
         bool clearModelGenSteps = true)
     {
-        // Snapshot by value: tests mutate this dictionary in place (installing support models,
-        // replacing the "VAE" handler), and restoring the same reference would keep those edits.
+        // Tests replace handlers in the shared dictionary.
         _priorModelSets = new Dictionary<string, T2IModelHandler>(Program.T2IModelSets);
         _priorIncludeHash = Program.ServerSettings.Metadata.ImageMetadataIncludeModelHash;
         _priorModelGenSteps = [.. WorkflowGenerator.ModelGenSteps];
@@ -361,7 +153,6 @@ internal static class TestModelFactory
     {
         EnsureModelSet("Stable-Diffusion");
         EnsureModelSet("Clip");
-        // Preserve other architectures' VAE stubs; missing models trigger downloads.
         EnsureModelSet("VAE");
         if (CommonModels.Known.IsEmpty)
         {
@@ -373,15 +164,11 @@ internal static class TestModelFactory
         Install("VAE", CommonModels.Known["minimax-h3-audio-vae"].FileName);
     }
 
-    /// <summary>
-    /// The four support models core's LTX-2.3 loader branch resolves. Names must match
-    /// <c>WorkflowGeneratorModelSupport</c> exactly — a miss does not fail, it downloads.
-    /// </summary>
+    // Core downloads support models when the fixture misses an exact filename.
     public static void InstallLtx2SupportModels()
     {
         EnsureModelSet("Stable-Diffusion");
         EnsureModelSet("Clip");
-        // Preserve other architectures' VAE stubs; missing models trigger downloads.
         EnsureModelSet("VAE");
         if (CommonModels.Known.IsEmpty)
         {
@@ -395,17 +182,12 @@ internal static class TestModelFactory
 
     public const string Hunyuan15ClipVisionFileName = "sigclip_vision_patch14_384.safetensors";
 
-    /// <summary>
-    /// Returns the CLIP-vision stub. Core's Hunyuan 1.5 image-to-video branch calls
-    /// <c>RequireVisionModel</c>, which — unlike <c>RequireClipModel</c> — has no "already
-    /// installed" fallback, so callers must also name it on the request.
-    /// </summary>
+    // Name the vision model in the request to keep RequireVisionModel from downloading it.
     public static T2IModel InstallHunyuan15SupportModels()
     {
         EnsureModelSet("Stable-Diffusion");
         EnsureModelSet("Clip");
         EnsureModelSet("ClipVision");
-        // Preserve other architectures' VAE stubs; missing models trigger downloads.
         EnsureModelSet("VAE");
         if (CommonModels.Known.IsEmpty)
         {
@@ -508,14 +290,12 @@ internal static class TestModelFactory
 
     public const string WanClipVisionFileName = "clip_vision_h.safetensors";
 
-    // WAN 2.1 and WAN 2.2 I2V 14B call RequireVisionModel, which downloads unless the request
-    // names ClipVisionModel explicitly. Use core's filename to preserve the loader graph.
+    // Name the vision model in the request to keep RequireVisionModel from downloading it.
     public static T2IModel InstallWanSupportModels()
     {
         EnsureModelSet("Stable-Diffusion");
         EnsureModelSet("Clip");
         EnsureModelSet("ClipVision");
-        // Preserve other architectures' VAE stubs; missing models trigger downloads.
         EnsureModelSet("VAE");
         if (CommonModels.Known.IsEmpty)
         {

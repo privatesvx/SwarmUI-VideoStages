@@ -54,7 +54,6 @@ public class Ltx2CoreVideoContractTests
 
     private static Ltx2WorkflowFixture WithControlNetStubs(Ltx2WorkflowFixture fixture)
     {
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         fixture.InstallModel("ControlNet", "UnitTest_ControlNet.safetensors");
         fixture.InstallModel("ControlNet", $"{DiffpatchControlNet}.safetensors");
         fixture.InstallModel("ControlNet", $"{AliMamaControlNet}.safetensors");

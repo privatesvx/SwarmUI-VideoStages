@@ -476,7 +476,6 @@ public class DecisionOwnerRegressionTests
 
     private static WorkflowGenerator GeneratorWithVideoControlNet()
     {
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         T2IModelHandler handler = new() { ModelType = "ControlNet" };
         T2IModel model = TestStubModel.Create(handler, "UnitTest_ControlNet.safetensors");
         WorkflowGenerator generator = Generator();

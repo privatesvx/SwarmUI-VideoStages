@@ -8,22 +8,12 @@ using System.Runtime.CompilerServices;
 
 namespace VideoStages.Tests;
 
-/// <summary>
-/// Calls the same server-side API method used by "Import from Generate Tab".
-/// Test callers provide only the POST body and receive the generated workflow.
-/// </summary>
+// Uses the API behind "Import from Generate Tab".
 internal static class ComfyWorkflowApiTestHarness
 {
     private static readonly BackendHandler TestBackends = new();
 
-    /// <summary>
-    /// Features a real ComfyUI backend reports once Swarm's own custom nodes are installed, but
-    /// which <see cref="ComfyUIBackendExtension.FeaturesSupported"/> only gains at backend init.
-    /// Without <c>comfy_loadimage_b64</c>, <see cref="WorkflowGenerator.LoadImage"/> falls back to
-    /// a bare <c>LoadImage</c> node carrying neither attached audio nor an FPS reference; without
-    /// <c>comfy_saveimage_ws</c>, image saves emit <c>SaveImage</c> rather than the
-    /// <c>SwarmSaveImageWS</c> a real backend always produces.
-    /// </summary>
+    // Backend startup normally discovers the custom nodes for media uploads and WebSocket saves.
     public static readonly string[] SwarmNodeFeatures =
         ["comfy_loadimage_b64", "comfy_saveimage_ws", Ltx2HostIntegration.FeatureFlag];
 
@@ -33,7 +23,6 @@ internal static class ComfyWorkflowApiTestHarness
         IEnumerable<WorkflowGenerator.WorkflowGenStep> extraSteps = null)
     {
         ArgumentNullException.ThrowIfNull(postParameters);
-        UnitTestStubs.EnsureComfyWorkflowParamsRegistered();
 
         List<WorkflowGenerator.WorkflowGenStep> priorSteps = [.. WorkflowGenerator.Steps];
         BackendHandler priorBackends = Program.Backends;
@@ -51,11 +40,7 @@ internal static class ComfyWorkflowApiTestHarness
                 postParameters);
             if (response["error"] is JToken error)
             {
-                // The route turns SwarmReadableErrorException — and nothing else — into this
-                // payload; anything else escapes it uncaught. Rethrowing the base
-                // InvalidOperationException would make a clean user-facing refusal
-                // indistinguishable from an internal crash, since both refusal types derive
-                // from it.
+                // Preserve the exception type that identifies a user-facing refusal.
                 throw new SwarmReadableErrorException(
                     error.Type == JTokenType.String ? error.Value<string>() : error.ToString());
             }
@@ -73,17 +58,12 @@ internal static class ComfyWorkflowApiTestHarness
         }
     }
 
-    /// <summary>
-    /// The API route builds a <see cref="WorkflowGenerator"/> and discards it, but a step ordered
-    /// after core's post-cleanup (200) still receives it, and its <c>Workflow</c> is the object the
-    /// route serialises. This is how generator-state assertions survive the move off the stub
-    /// harness.
-    /// </summary>
     public static async Task<(JObject Workflow, WorkflowGenerator Generator)> GenerateWithStateAsync(
         JObject postParameters,
         IEnumerable<string> extraFeatures = null,
         IEnumerable<WorkflowGenerator.WorkflowGenStep> extraSteps = null)
     {
+        // Capture the generator after core's cleanup, before the route discards it.
         WorkflowGenerator generator = null;
         JObject workflow = await GenerateAsync(
             postParameters,
@@ -120,8 +100,7 @@ internal static class ComfyWorkflowApiTestHarness
     {
         User user = (User)RuntimeHelpers.GetUninitializedObject(typeof(User));
         user.Data = new User.DatabaseEntry { ID = "video-stages-api-test" };
-        // GetUninitializedObject skips field initializers, so Settings would be null. Core reads
-        // it unguarded (for example the automatic-VAE lookup reads Settings.VAEs directly).
+        // GetUninitializedObject skips the Settings initializer that core relies on.
         user.Settings = new Settings.User();
         user.CalculatedRole = new Role("video-stages-api-test")
         {

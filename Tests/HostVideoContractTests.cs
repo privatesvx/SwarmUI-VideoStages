@@ -345,7 +345,6 @@ public class HostVideoContractTests
     public async Task Unsupported_generic_extras_warn_and_do_not_reach_the_host_stage()
     {
         using Hunyuan15WorkflowFixture fixture = Hunyuan15WorkflowFixture.CreateWithBaseModel();
-        UnitTestStubs.EnsureComfyControlNetParamsRegistered();
         fixture.InstallModel("ControlNet", "UnitTest_ControlNet.safetensors");
         JObject stage = fixture.Stage(
             "Base",
